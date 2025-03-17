@@ -21,16 +21,32 @@ class ScheduleFilterForm(forms.Form):
 
 def home(request):
     form = ScheduleFilterForm(request.GET or None)
-    schedules = Schedule.objects.all().order_by('day', 'group__name')
+    schedules = Schedule.objects.all().order_by('day', 'group__name', 'start_time')
+
     if form.is_valid():
         group = form.cleaned_data['group']
         day = form.cleaned_data['day']
+
         if group:
             schedules = schedules.filter(group=group)
         if day:
             schedules = schedules.filter(day=day)
 
-    return render(request, 'home.html', {'schedules': schedules, 'form': form})
+    grouped_schedules = {}
+    for schedule in schedules:
+        group_name = schedule.group.name
+        day_name = schedule.get_day_display()
+
+        if group_name not in grouped_schedules:
+            grouped_schedules[group_name] = {}
+
+        if day_name not in grouped_schedules[group_name]:
+            grouped_schedules[group_name][day_name] = []
+
+        grouped_schedules[group_name][day_name].append(schedule)
+
+    return render(request, 'home.html', {'grouped_schedules': grouped_schedules, 'form': form})
+
 
 def login_teacher(request):
     if request.method == 'POST':
@@ -65,7 +81,6 @@ def add_schedule(request):
 @login_required
 def update_schedule(request, pk):
     schedule = get_object_or_404(Schedule, id=pk)
-
     if request.method == 'POST':
         form = ScheduleForm(request.POST, instance=schedule)
         if form.is_valid():
@@ -74,7 +89,6 @@ def update_schedule(request, pk):
             return redirect('home')
     else:
         form = ScheduleForm(instance=schedule)
-
     return render(request, 'update_schedule.html', {'form': form})
 
 @login_required
