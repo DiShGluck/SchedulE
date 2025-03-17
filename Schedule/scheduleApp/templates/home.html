@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1 class="mb-4">Расписание занятий</h1>
+
+<form method="GET" id="filter-form" class="mb-4">
+  <div class="row g-2 align-items-center">  
+    <div class="col-auto">  
+      {{ form.group.label_tag }}
+      {{ form.group }}
+    </div>
+    <div class="col-auto">
+      {{ form.day.label_tag }}
+      {{ form.day }}
+    </div>
+  </div>
+</form>
+
+{% if schedules %}
+ <table class="table table-striped table-hover">
+    <thead>
+      <tr>
+        <th>Группа</th>
+        <th>Предмет</th>
+        <th>Преподаватель</th>
+        <th>День недели</th>
+        <th>Время начала</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for schedule in schedules %}
+        <tr 
+          {% if user.is_authenticated %}
+            onclick="window.location='{% url 'update_schedule' schedule.id %}';" 
+            style="cursor: pointer;"  
+          {% endif %}>
+          <td>{{ schedule.group.name }}</td>
+          <td>{{ schedule.subject.name }}</td>
+          <td>{{ schedule.teacher }}</td>
+          <td>{{ schedule.get_day_display }}</td>
+          <td>{{ schedule.start_time|time:"H:i" }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table> 
+{% else %}
+  <p>Расписание пока отсутствует.</p>
+{% endif %}
+
+{% if user.is_authenticated %}
+  <a href="{% url 'add_schedule' %}" class="btn btn-primary">Добавить расписание</a>
+{% else %}
+  <a href="{% url 'login' %}" class="btn btn-primary">Войти как преподаватель</a>
+{% endif %}
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('filter-form');
+    const groupSelect = form.querySelector('select[name="group"]');
+    const daySelect = form.querySelector('select[name="day"]');
+
+    groupSelect.addEventListener('change', function() {
+      form.submit();
+    });
+
+    daySelect.addEventListener('change', function() {
+      form.submit();
+    });
+  });
+</script>
+
+{% endblock %}
