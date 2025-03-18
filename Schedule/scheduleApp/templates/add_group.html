@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="col-md-6 offset-md-3">
+  <h1 class="mb-4">Добавить группу</h1>
+  <form method="POST">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="name" class="form-label">Название группы</label>
+      <input type="text" class="form-control" id="name" name="name" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Добавить</button>
+    <a href="{% url 'home' %}" class="btn btn-secondary">Назад</a>
+  </form>
+</div>
+
+{% endblock %}

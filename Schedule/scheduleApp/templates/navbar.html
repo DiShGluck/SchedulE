@@ -4,12 +4,13 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
         {% if user.is_authenticated %}
+
           <li class="nav-item">
             <a class="nav-link" href="{% url 'logout' %}">Выйти</a>
           </li>
         {% else %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'login' %}">Войти</a>
+            <a class="nav-link" href="{% url 'login' %}">Войти как перподователь</a>
           </li>
         {% endif %}
       </ul>

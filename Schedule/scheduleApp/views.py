@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django import forms
-from .models import Schedule, Group, Subject, Teacher  
+from .models import Schedule, Group, Subject, Teacher, User  
 from .forms import ScheduleForm 
 
 class ScheduleFilterForm(forms.Form):
@@ -97,3 +97,50 @@ def delete_schedule(request, pk):
     schedule.delete()
     messages.success(request, "Расписание удалено!")
     return redirect('home')
+
+@login_required
+def add_group(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        if name:
+            Group.objects.create(name=name)
+            messages.success(request, "Группа успешно добавлена!")
+            return redirect('home')
+        else:
+            messages.error(request, "Название группы не может быть пустым.")
+    return render(request, 'add_group.html')
+
+@login_required
+def add_subject(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        if name:
+            Subject.objects.create(name=name)
+            messages.success(request, "Предмет успешно добавлен!")
+            return redirect('home')
+        else:
+            messages.error(request, "Название предмета не может быть пустым.")
+    return render(request, 'add_subject.html')
+
+@login_required
+def add_teacher(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        last_name = request.POST.get('last_name')
+        first_name = request.POST.get('first_name')
+        middle_name = request.POST.get('middle_name', '')
+
+        if username and password and last_name and first_name:
+            user = User.objects.create_user(username=username, password=password)
+            Teacher.objects.create(
+                user=user,
+                last_name=last_name,
+                first_name=first_name,
+                middle_name=middle_name
+            )
+            messages.success(request, "Преподаватель успешно добавлен!")
+            return redirect('home')
+        else:
+            messages.error(request, "Заполните все обязательные поля.")
+    return render(request, 'add_teacher.html')

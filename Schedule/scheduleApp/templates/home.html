@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
+{% load static %}
+<link href="{% static 'css/styles.css' %}" rel="stylesheet">
 
 <h1 class="mb-4">Расписание занятий</h1>
 
@@ -13,6 +15,14 @@
       {{ form.day.label_tag }}
       {{ form.day }}
     </div>
+    <div>
+      {% if user.is_authenticated %}
+        <a href="{% url 'add_schedule' %}" class="btn btn-primary">Добавить расписание</a>
+        <a href="{% url 'add_group' %}" class="btn btn-primary">Добавить группу</a>
+        <a href="{% url 'add_subject' %}" class="btn btn-primary">Добавить предмет</a>
+        <a href="{% url 'add_teacher' %}" class="btn btn-primary">Добавить преподавателя</a>
+      {% endif %}
+    </div>
   </div>
 </form>
 
@@ -24,18 +34,18 @@
           <div class="card-header">
             <h5 class="card-title">{{ group_name }}</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body p-2">
             {% for day_name, schedules in days.items %}
-              <h6 class="card-subtitle mb-2 text-muted">{{ day_name }}</h6>
+              <h6 class="card-subtitle mb-2 day-header">{{ day_name }}</h6>
               <ul class="list-group list-group-flush">
                 {% for schedule in schedules %}
-                  <li class="list-group-item {% if user.is_authenticated %}clickable-row{% endif %}" data-href="{% url 'update_schedule' schedule.id %}">
-                    <strong>{{ schedule.start_time|time:"H:i" }}</strong>
-                    <br>
-                    {{ schedule.subject.name }}
-                    <br>
-                    <small class="text-muted">{{ schedule.teacher }}</small>
-                  </li>
+                <li class="list-group-item p-2 {% if user.is_authenticated %}clickable-row{% endif %}" data-href="{% url 'update_schedule' schedule.id %}">
+                  <div class="d-flex justify-content-between align-items-center mb-1"> 
+                    <span class="text-dark">{{ schedule.subject.name }}</span> 
+                    <span class="text-muted small">{{ schedule.start_time|time:"H:i" }}</span> 
+                  </div>
+                  <small class="text-muted">{{ schedule.teacher }}</small> 
+                </li>
                 {% endfor %}
               </ul>
             {% endfor %}
@@ -48,37 +58,6 @@
   <p>Расписание пока отсутствует.</p>
 {% endif %}
 
-{% if user.is_authenticated %}
-  <a href="{% url 'add_schedule' %}" class="btn btn-primary">Добавить расписание</a>
-{% else %}
-  <a href="{% url 'login' %}" class="btn btn-primary">Войти как преподаватель</a>
-{% endif %}
-
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('filter-form');
-    const groupSelect = form.querySelector('select[name="group"]');
-    const daySelect = form.querySelector('select[name="day"]');
-
-    groupSelect.addEventListener('change', function() {
-      form.submit();
-    });
-
-    daySelect.addEventListener('change', function() {
-      form.submit();
-    });
-  });
-</script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const rows = document.querySelectorAll('.clickable-row');
-    rows.forEach(row => {
-      row.addEventListener('click', function() {
-        window.location.href = this.dataset.href;
-      });
-    });
-  });
-</script>
+<script src="{% static 'js/scripts.js' %}"></script>
 
 {% endblock %}
